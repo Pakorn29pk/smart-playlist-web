@@ -1,0 +1,5 @@
+services:
+  web:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"   # port 8000 busy? run with PORT=8080 docker compose up

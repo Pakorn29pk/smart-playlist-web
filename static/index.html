@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Music Playlist Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18V6l11-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span>Smart Playlist</div>
+  <form class="search" id="searchForm" role="search">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+    <input id="q" type="text" placeholder="Search titles, artists, genres…" autocomplete="off" aria-label="Search">
+    <select id="sfield" aria-label="Search by">
+      <option value="title">Title</option><option value="artist">Artist</option><option value="genre">Genre</option>
+      <option value="album">Album</option><option value="released">Released</option>
+    </select>
+    <button class="pill on" type="submit">Search</button>
+  </form>
+  <button class="pill ghost" id="reset" type="button">Reset playlist</button>
+</header>
+
+<main class="layout">
+  <section class="sheet queue" aria-label="Playlist">
+    <div class="grab"></div>
+    <div class="qhead">
+      <div>
+        <h1 id="ptitle">Sample playlist</h1>
+        <p class="sub" id="psub">Loading…</p>
+      </div>
+      <button class="play big" id="playBtn" type="button" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+    </div>
+    <div class="chips" id="sortChips" role="group" aria-label="Sort by"></div>
+    <div class="colhead"><span>#</span><span>Title</span><span>Album</span><span>Year</span><span>Length</span><span></span></div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <aside class="side">
+    <section class="sheet opcard" aria-live="polite">
+      <div class="ophead">
+        <div><p class="eyebrow" id="opStructure">Ready</p><h2 id="opName">Pick an operation</h2></div>
+        <span class="time" id="opTime"></span>
+      </div>
+      <div class="badges" id="opBadges"></div>
+      <div class="opbody" id="opBody"><p class="hint">Sort with the chips, search at the top, group or count below, add a track, or remove one with the minus button. Every step shows here.</p></div>
+    </section>
+
+    <section class="tiles" aria-label="Actions">
+      <button class="tile" data-group="genre" type="button"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Group by genre</button>
+      <button class="tile" data-group="artist" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Group by artist</button>
+      <button class="tile" id="countBtn" type="button"><svg viewBox="0 0 24 24"><path d="M9 4L7 20M17 4l-2 16M4 9h16M3 15h16"/></svg>Count</button>
+      <button class="tile" id="listBtn" type="button"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Show list</button>
+    </section>
+
+    <section class="sheet addcard">
+      <h2>Add a track</h2>
+      <form id="addForm" class="addform">
+        <input name="title" placeholder="Title" aria-label="Title">
+        <input name="artist" placeholder="Artist" aria-label="Artist">
+        <input name="album" placeholder="Album" aria-label="Album">
+        <input name="genre" placeholder="Genre" aria-label="Genre">
+        <input name="released" placeholder="Year (2013)" aria-label="Year or date">
+        <input name="length" placeholder="Length (4:08)" aria-label="Length">
+        <button class="pill on" type="submit">Insert in order</button>
+      </form>
+      <p class="err" id="err" role="alert"></p>
+    </section>
+  </aside>
+</main>
+
+<footer class="player">
+  <div class="now"><div class="art" id="nowArt">♪</div><div><div class="t1" id="nowTitle">Nothing playing</div><div class="t2" id="nowSub">Pick a track</div></div></div>
+  <div class="bar"><span id="elapsed">0:00</span><div class="track"><i id="prog"></i></div><span id="total">0:00</span></div>
+  <div class="counters" id="counters"></div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
