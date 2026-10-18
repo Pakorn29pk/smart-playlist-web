@@ -51,6 +51,8 @@ function render(animate = true) {
       r.animate([{ transform: `translateY(${dy}px)` }, { transform: "translateY(0)" }], { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)" });
     });
   }
+  $("#ptitle").textContent = `Sample ${state.sample} · ${state.sample_name}`;
+  document.querySelectorAll("[data-sample]").forEach((b) => b.classList.toggle("on", b.dataset.sample === state.sample));
   const label = FIELDS.find(([f]) => f === state.sort_field)?.[1] || state.sort_field;
   $("#psub").textContent = `Sorted by ${label.toLowerCase()} · ${state.counts.tracks} tracks · ${state.counts.duration}`;
   $("#sortChips").innerHTML = FIELDS.map(([f, l]) => `<button class="chip ${f === state.sort_field ? "on" : ""}" type="button" data-sort="${f}">${l}</button>`).join("");
@@ -84,8 +86,18 @@ async function sortBy(field) {
   const { state: s, op } = await api("/api/sort", { field });
   state = s; view = "list"; hits.clear(); fresh = null; render();
   const label = FIELDS.find(([f]) => f === field)[1];
-  showOp(op, `<p class="hint">Merge sort split the ${s.counts.tracks} tracks into halves until each piece was one track, then merged them back in order of <b>${label.toLowerCase()}</b>. Ties fall through to genre → artist → released → title, and equal tracks keep their order (stable).</p>
-    <div class="result">The linked list was rebuilt in the same order: ${s.linked.length} nodes.</div>`);
+  const segs = (row) => row.map((seg) => `<div class="seg">${seg.map((v) => `<span>${esc(v)}</span>`).join("")}</div>`).join("");
+  let k = 0;
+  const lv = (row, cls) => `<div class="lvl ${cls}" style="animation-delay:${(k++) * 0.22}s">${segs(row)}</div>`;
+  const split = op.trace.split.map((r) => lv(r, "")).join("");
+  const merge = op.trace.merge.slice(1).map((r, i, a) => lv(r, i === a.length - 1 ? "m final" : "m")).join("");
+  showOp(op, `<p class="hint">Split into halves until every piece is one track, then merge the pieces back in order of <b>${label.toLowerCase()}</b>. Equal tracks keep their order (stable).</p>
+    <div class="lvtag">split</div><div class="levels">${split}</div>
+    <div class="lvtag">merge</div><div class="levels">${merge}</div>
+    <div class="result">${op.trace.split.length - 1} levels deep for ${s.counts.tracks} tracks: about log₂ n. The linked list was rebuilt in the same order.</div>`);
+  const card = document.querySelector(".opcard");
+  card.scrollTop = 0;
+  setTimeout(() => card.scrollTo({ top: card.scrollHeight, behavior: "smooth" }), k * 220 - 600);   // follow the merge to the final row
 }
 
 async function search(field, q) {
@@ -122,7 +134,12 @@ async function insert(form) {
   const body = Object.fromEntries(new FormData(form));
   const { state: s, op } = await api("/api/insert", body);
   state = s; view = "list"; hits.clear(); fresh = op.uid; render();
-  showOp(op, `<p class="hint">Binary search found the slot after any equal tracks, then the new node was spliced into the linked list by rewiring the links on both sides. Nothing else moved.</p>
+  const n = op.n;
+  const steps = op.trace.map((st, k) => `<div class="step"><b>step ${k + 1}</b><div class="cells" style="grid-template-columns:repeat(${n},1fr)">${
+    Array.from({ length: n }, (_, j) => `<i class="${j === st.mid ? "mid" : j >= st.lo && j < st.hi ? "in" : ""}"></i>`).join("")}</div>
+    <span class="steptxt">compared with #${st.mid + 1} ${esc(st.title)}</span></div>`).join("");
+  showOp(op, `<p class="hint">Binary search found the slot after any equal tracks (${op.trace.length} steps), then the new node was spliced into the linked list by rewiring the links on both sides. Nothing else moved.</p>
+    ${steps}
     <div class="nodes"><span class="node">${esc(op.before ?? "start")}</span><span class="link">⇄</span><span class="node new">${esc(body.title)}</span><span class="link">⇄</span><span class="node">${esc(op.after ?? "end")}</span></div>
     <div class="result">Inserted at position ${op.index + 1}, sorted order kept.</div>`);
   form.reset();
@@ -140,7 +157,33 @@ async function del(i, rowEl) {
     <div class="result">Removed “${esc(op.title)}” from position ${op.index + 1}.</div>`);
 }
 
+async function speedRace() {
+  showOp({ structure: "Speed race", algorithm: "Racing…", micros: 0, cost: "50,000 tracks", name: "race" },
+    `<p class="hint">Generating 50,000 tracks and timing both ways. The first run takes a few seconds.</p>`);
+  $("#opTime").textContent = "";
+  const { race: r } = await api("/api/race", {});
+  const fmt = (v, unit) => `${v.toLocaleString(undefined, { maximumFractionDigits: unit === "µs" ? 1 : 3 })} ${unit}`;
+  const box = (title, slowName, slow, fastName, fast, unit) => {
+    const ratio = slow / fast, w = Math.max(.6, (fast / slow) * 100);
+    return `<div class="rbox"><h3>${title}</h3>
+      <div class="rline"><span>${slowName}</span><div class="barw"><i style="width:100%"></i></div><b>${fmt(slow, unit)}</b></div>
+      <div class="rline us"><span>${fastName}</span><div class="barw"><i style="width:${w}%"></i></div><b>${fmt(fast, unit)}</b></div>
+      <div class="xfast">${Math.round(ratio).toLocaleString()}× faster</div></div>`;
+  };
+  showOp({ structure: "Speed race", algorithm: `${r.n.toLocaleString()} tracks`, micros: 0, cost: "measured now", name: "race" },
+    `<div class="race">${box("Search one title", "Linear scan · O(n)", r.linear_us, "Binary search · O(log n)", r.binary_us, "µs")}
+      ${box("Insert one track in order", "Append + re-sort", r.resort_ms, "Search + splice", r.splice_ms, "ms")}</div>`);
+  $("#opTime").textContent = "";
+}
+
 // ---------- events ----------
+document.querySelectorAll("[data-sample]").forEach((b) => b.addEventListener("click", () => run(async () => {
+  state = (await api("/api/load", { sample: b.dataset.sample })).state; view = "list"; hits.clear(); fresh = null; render();
+  showOp({ structure: `Sample ${state.sample}`, algorithm: state.sample_name, micros: 0, cost: `${state.counts.tracks} tracks`, name: "loaded" },
+    `<p class="hint">Loaded from <b>sample_data/</b>, sorted by ${esc(state.sort_field)}. Every operation now runs on this sample.</p>`);
+  $("#opTime").textContent = "";
+})));
+$("#raceBtn").addEventListener("click", () => run(speedRace));
 $("#sortChips").addEventListener("click", (e) => { const b = e.target.closest("[data-sort]"); if (b) run(() => sortBy(b.dataset.sort)); });
 $("#searchForm").addEventListener("submit", (e) => { e.preventDefault(); run(() => search($("#sfield").value, $("#q").value)); });
 document.querySelectorAll("[data-group]").forEach((b) => b.addEventListener("click", () => run(() => group(b.dataset.group))));
@@ -171,7 +214,17 @@ function nowPlaying() {
 
 run(async () => {
   state = (await api("/api/state")).state; render(false);
-  // ?search=lose%20yourself&field=title opens the page mid-search (handy for recording a take)
+  // Open the page mid-take from the address bar, e.g. ?run=sample:B,sort:length or ?search=lose%20yourself&field=title
   const q = new URLSearchParams(location.search);
+  for (const step of (q.get("run") || "").split(",").filter(Boolean)) {
+    const [what, arg = "", arg2 = ""] = step.split(":");
+    if (what === "sample") document.querySelector(`[data-sample="${arg.toUpperCase()}"]`)?.click();
+    if (what === "sort") await sortBy(arg);
+    if (what === "group") await group(arg || "genre");
+    if (what === "count") await count();
+    if (what === "race") await speedRace();
+    if (what === "search") { $("#q").value = arg2; $("#sfield").value = arg; await search(arg, arg2); }
+    await new Promise((r) => setTimeout(r, 400));
+  }
   if (q.get("search")) { $("#q").value = q.get("search"); $("#sfield").value = q.get("field") || "title"; await search($("#sfield").value, q.get("search")); }
 });

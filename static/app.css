@@ -116,8 +116,8 @@ h2 { margin: 4px 0 0; font-size: 28px; font-weight: 800 }
 .kv b { display: block; font-size: 28px; font-weight: 800 }
 .kv span { color: var(--sub); font-size: 14px }
 
-.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px }
-.tile { display: grid; justify-items: center; gap: 8px; padding: 16px 8px; border-radius: 20px; border: 1px solid var(--edge); background: rgba(255,255,255,.10); backdrop-filter: blur(30px); font-weight: 700; font-size: 15px; cursor: pointer; text-align: center }
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px }
+.tile { display: grid; justify-items: center; gap: 8px; padding: 14px 6px; border-radius: 20px; border: 1px solid var(--edge); background: rgba(255,255,255,.10); backdrop-filter: blur(30px); font-weight: 700; font-size: 15px; cursor: pointer; text-align: center }
 .tile svg { width: 26px; height: 26px }
 .tile:hover { background: rgba(255,255,255,.18) }
 .tile.on { background: var(--blue); border-color: transparent }
@@ -153,4 +153,42 @@ h2 { margin: 4px 0 0; font-size: 28px; font-weight: 800 }
   .top { grid-template-columns: 1fr; height: auto; padding: 14px 16px; gap: 12px }
   .player { position: static; grid-template-columns: 1fr; height: auto; padding: 14px 16px }
   .layout { padding: 0 16px 16px }
+}
+
+/* sample picker */
+.samples { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.10); border: 1px solid var(--edge); border-radius: 999px; padding: 5px 6px 5px 16px; backdrop-filter: blur(30px) }
+.slabel { color: var(--sub); font-weight: 600; margin-right: 4px }
+.samples button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.10); font-weight: 800; cursor: pointer }
+.samples button.on { background: var(--blue); box-shadow: 0 6px 18px rgba(47,107,255,.45) }
+.samples .reset { display: grid; place-items: center } .samples .reset svg { width: 18px; height: 18px }
+
+/* merge sort picture */
+.levels { display: grid; gap: 7px; margin-top: 6px }
+.lvl { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; opacity: 0; animation: lvlin .35s ease-out forwards }
+.lvl .seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14) }
+.lvl.m .seg { background: rgba(47,107,255,.22); border-color: rgba(91,140,255,.45) }
+.lvl.final .seg { background: var(--blue); border-color: transparent }
+.lvl .seg span { font: 500 11.5px var(--mono); padding: 2px 4px; border-radius: 5px; background: rgba(255,255,255,.10); white-space: nowrap }
+.lvtag { text-align: center; font: 500 12px var(--mono); color: var(--sub); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px }
+@keyframes lvlin { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
+
+/* speed race */
+.race { display: grid; gap: 16px; margin-top: 4px }
+.rbox { background: rgba(255,255,255,.07); border-radius: 16px; padding: 14px 16px }
+.rbox h3 { margin: 0 0 10px; font-size: 17px }
+.rline { display: grid; grid-template-columns: 190px 1fr 100px; gap: 10px; align-items: center; margin: 6px 0; font-size: 15px }
+.rline .barw { height: 14px; border-radius: 7px; background: rgba(255,255,255,.08); overflow: hidden }
+.rline .barw i { display: block; height: 100%; border-radius: 7px; background: rgba(255,255,255,.45); transform-origin: left; animation: grow .9s ease-out both }
+.rline.us .barw i { background: var(--blue) }
+.rline b { font-variant-numeric: tabular-nums; text-align: right }
+.xfast { font-size: 30px; font-weight: 800; color: #9FB8FF; margin-top: 4px }
+@keyframes grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+@media (max-width: 560px) {
+  .search { grid-template-columns: auto minmax(0, 1fr); border-radius: 22px }
+  .search select, .search button { grid-column: span 2 }
+  .samples { flex-wrap: wrap; border-radius: 22px }
+  .colhead, .row { grid-template-columns: 30px minmax(0, 1fr) 56px 40px; gap: 8px }
+  .alb, .yr, .colhead span:nth-child(3), .colhead span:nth-child(4) { display: none }
+  .tiles { grid-template-columns: repeat(2, 1fr) }
+  .addform { grid-template-columns: 1fr } .addform button { grid-column: auto }
 }

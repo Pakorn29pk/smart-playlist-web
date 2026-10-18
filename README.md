@@ -39,7 +39,8 @@ python server.py
 - **Group / Count:** the tiles on the right. "Show list" goes back to the flat playlist.
 - **Insert:** the "Add a track" form. Year can be just `2013`, length like `4:08`.
 - **Delete:** the minus button at the end of a row.
-- **Reset playlist:** puts the 12 sample tracks back.
+- **Sample A · B · C · D:** loads a test sample from `sample_data/` (A real playlist, B duplicate keys, C already ordered, D broken data). The circular arrow reloads the current sample.
+- **Speed race:** times linear vs binary search, and append + re-sort vs search + splice, on 50,000 generated tracks.
 
 The panel on the right shows what each algorithm just did: the binary-search steps, the buckets, the nodes on each side of an insert or delete, and how long it took.
 
@@ -50,13 +51,17 @@ The panel on the right shows what each algorithm just did: the binary-search ste
 | `playlist.py` | The data structures and algorithms (same as the notebook) |
 | `server.py` | A small web server and JSON API, Python standard library only |
 | `static/` | The page: `index.html`, `app.css`, `app.js` |
+| `sample_data/` | Test samples A–D as CSV files |
 | `test_playlist.py` | Tests for the algorithms and every endpoint: `python -m unittest` |
 
 ## Recording tips for the video
 
 - Full screen the browser (F11) at 1920×1080 before recording.
-- Press **Reset playlist** before each take so everyone starts from the same 12 tracks.
-- To open the page already searching, add it to the address: `http://localhost:8000/?search=lose%20yourself&field=title`.
+- Press the reload arrow (next to the samples) before each take so everyone starts from the same tracks.
+- To open the page already in the state your take needs, add steps to the address, separated by commas:
+  - `http://localhost:8000/?run=sample:B,sort:length`
+  - `http://localhost:8000/?run=sample:D,search:title:hotel%20california`
+  - `http://localhost:8000/?run=group:genre` · `?run=count` · `?run=race`
 
 ## Team
 

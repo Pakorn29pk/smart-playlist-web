@@ -1,10 +1,17 @@
 """Web app for the Smart Music Playlist Manager. Standard library only: python server.py, then open http://localhost:8000"""
-import itertools, json, os, threading, time
+import csv, itertools, json, os, random, string, threading, time
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
-from playlist import FIELDS, Playlist, Track, field_value, lower_bound, mmss, sample_a, secs
+from playlist import (FIELDS, Playlist, Track, binary_search, field_value, linear_search, lower_bound, make_key,
+                      merge_sort, mmss, secs)
 
-STATIC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+HERE = os.path.dirname(os.path.abspath(__file__))
+STATIC = os.path.join(HERE, "static")
+# sample -> (file, field it is sorted by when loaded, what it tests)
+SAMPLES = {"A": ("A_real_playlist.csv", "released", "Real playlist"),
+           "B": ("B_duplicate_keys.csv", "length", "Duplicate keys"),
+           "C": ("C_already_ordered.csv", "released", "Already ordered"),
+           "D": ("D_broken_data.csv", "album", "Broken data")}
 LOCK = threading.Lock()                      # ponytail: one shared playlist for everyone on this server; fine for a local demo
 UIDS = itertools.count(1)
 STATE = {}
@@ -24,8 +31,84 @@ def tag(t):
     return t
 
 
-def reset():
-    STATE["p"] = Playlist([tag(t) for t in sample_a()], sort_field="released")
+def load_csv(path):
+    with open(path, newline="", encoding="utf-8") as f:
+        return [Track(r["title"], r["artist"], r["album"] or None, r["genre"], r["released"], secs(r["length"]))
+                for r in csv.DictReader(f)]
+
+
+def reset(sample=None):
+    sample = sample or STATE.get("sample", "A")
+    if sample not in SAMPLES:
+        raise ValueError("pick sample A, B, C or D")
+    file, field, _ = SAMPLES[sample]
+    STATE["sample"] = sample
+    STATE["p"] = Playlist([tag(t) for t in load_csv(os.path.join(HERE, "sample_data", file))], sort_field=field)
+
+
+def short(t, field):
+    """A few characters of the sort value, for the merge-sort picture."""
+    v = getattr(t, field)
+    if field == "length":
+        return mmss(v)
+    if field == "released":
+        return v[:4]
+    return (v or "—")[:4]
+
+
+def merge_trace(items, key, field):
+    """Replays the same merge sort and records every piece at every depth (the split going down, the merge coming up)."""
+    split, merged = {}, {}
+
+    def rec(seq, d):
+        split.setdefault(d, []).append([short(t, field) for t in seq])
+        if len(seq) <= 1:
+            merged.setdefault(d, []).append([short(t, field) for t in seq])
+            return list(seq)
+        mid = len(seq) // 2
+        out = merge_sort(seq, key)                      # same algorithm, same result
+        rec(seq[:mid], d + 1); rec(seq[mid:], d + 1)
+        merged.setdefault(d, []).append([short(t, field) for t in out])
+        return out
+
+    rec(list(items), 0)
+    depth = max(split)
+    return {"split": [split[d] for d in range(depth + 1)], "merge": [merged[d] for d in range(depth, -1, -1)]}
+
+
+def upper_trace(items, value, keyf):
+    lo, hi, steps = 0, len(items), []
+    while lo < hi:
+        mid = (lo + hi) // 2
+        steps.append({"lo": lo, "hi": hi, "mid": mid, "title": items[mid].title})
+        if keyf(items[mid]) <= value:
+            lo = mid + 1
+        else:
+            hi = mid
+    return steps
+
+
+RACE = {}
+
+
+def race(n=50_000):
+    """Times the obvious way against ours on n generated tracks (built once, then reused)."""
+    if "p" not in RACE:
+        rng = random.Random(1)
+        word = lambda: "".join(rng.choices(string.ascii_lowercase, k=rng.randint(4, 9)))
+        tracks = [Track(word().title() + " " + word(), word().title(), word(), rng.choice(["Pop", "Rock", "Jazz", "Soul"]),
+                        f"{rng.randint(1950, 2025)}-01-01", rng.randint(60, 600)) for _ in range(n)]
+        RACE["p"] = Playlist(tracks, sort_field="title")
+    p = RACE["p"]
+    targets = [p.tracks[i].title for i in random.Random(2).sample(range(len(p)), 30)]
+    t0 = time.perf_counter(); [linear_search(p.tracks, "title", x) for x in targets]; lin = (time.perf_counter() - t0) / 30
+    t0 = time.perf_counter(); [binary_search(p.tracks, "title", x) for x in targets]; bins = (time.perf_counter() - t0) / 30
+    new = Track("Zz Race Track", "Racer", None, "Pop", "2026-10-25", 200)
+    t0 = time.perf_counter(); merge_sort(p.tracks + [new], p.key); resort = time.perf_counter() - t0
+    t0 = time.perf_counter(); i = p.insert(new); splice = time.perf_counter() - t0
+    p.delete(i)
+    return {"n": len(p), "linear_us": round(lin * 1e6, 1), "binary_us": round(bins * 1e6, 2),
+            "resort_ms": round(resort * 1e3, 1), "splice_ms": round(splice * 1e3, 3)}
 
 
 def as_json(t):
@@ -36,7 +119,8 @@ def as_json(t):
 def snapshot():
     p = STATE["p"]
     c = p.count()
-    return {"tracks": [as_json(t) for t in p.tracks], "sort_field": p.sort_field,
+    return {"sample": STATE["sample"], "sample_name": SAMPLES[STATE["sample"]][2],
+            "tracks": [as_json(t) for t in p.tracks], "sort_field": p.sort_field,
             "linked": [n.uid for n in p.linked_order()],
             "counts": {"tracks": c["tracks"], "duration": c["duration"], "genres": c["per_genre"], "artists": c["per_artist"]}}
 
@@ -60,12 +144,20 @@ def handle(path, body):
     if path == "/api/reset":
         reset()
         return {"state": snapshot()}
+    if path == "/api/load":
+        reset(str(body.get("sample", "")).upper())
+        return {"state": snapshot()}
+    if path == "/api/race":
+        return {"state": snapshot(), "race": race()}
 
     if path == "/api/sort":
         field = body.get("field")
+        before = list(p.tracks)
         t0 = time.perf_counter()
         p.sort_by(field)
-        return {"state": snapshot(), "op": op("sort", t0, field=field)}
+        o = op("sort", t0, field=field)
+        o["trace"] = merge_trace(before, p.key, field)
+        return {"state": snapshot(), "op": o}
 
     if path == "/api/search":
         field, q = body.get("field", "title"), str(body.get("q", "")).strip()
@@ -111,9 +203,10 @@ def handle(path, body):
             released += "-01-01"
         t = tag(Track(str(body.get("title", "")).strip(), str(body.get("artist", "")).strip(),
                       str(body.get("album", "")).strip() or None, str(body.get("genre", "")).strip(), released, length))
+        steps = upper_trace(p.tracks, p.key(t), p.key) if t.title and t.length >= 0 else []
         t0 = time.perf_counter()
         i = p.insert(t)
-        o = op("insert", t0, index=i, uid=t.uid)
+        o = op("insert", t0, index=i, uid=t.uid, trace=steps, n=len(p) - 1)
         o["before"], o["after"] = neighbours(p, i)
         return {"state": snapshot(), "op": o}
 
@@ -171,12 +264,16 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-cache")      # always serve the latest page after an update
+        super().end_headers()
+
     def log_message(self, fmt, *args):
         pass
 
 
 if __name__ == "__main__":
-    reset()
+    reset("A")
     port = int(os.environ.get("PORT", 8000))
     print(f"Smart Music Playlist Manager on http://localhost:{port}")
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
