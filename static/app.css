@@ -1,8 +1,9 @@
 /* Look E from the video: near-black stage, slow colour blobs, frosted glass, one blue accent. Designed for a 1920x1080 screen recording. */
 :root {
-  --bg: #0b0c11; --fg: #fff; --sub: rgba(255,255,255,.72); --mute: rgba(255,255,255,.48);
-  --blue: #2F6BFF; --blue-l: #5B8CFF; --edge: rgba(255,255,255,.30); --glass: rgba(255,255,255,.12);
+  --bg: #0b0c11; --fg: #fff; --sub: rgb(var(--t) / .72); --mute: rgb(var(--t) / .48);
+  --blue: #2F6BFF; --blue-l: #5B8CFF; --edge: rgb(var(--t) / .30); --glass: rgb(var(--t) / .12);
   --font: "Figtree", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --t: 255 255 255;
   color-scheme: dark;
 }
 * { box-sizing: border-box }
@@ -20,11 +21,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 @keyframes drift { 0% { transform: translate(0, 0) } 50% { transform: translate(8vw, 5vw) } 100% { transform: translate(-4vw, 9vw) } }
 @media (prefers-reduced-motion: reduce) { .bg i { animation: none } }
 
-.sheet { background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 40%, rgba(255,255,255,.05) 65%, rgba(255,255,255,.10));
+.sheet { background: linear-gradient(135deg, rgb(var(--t) / .16), rgb(var(--t) / .06) 40%, rgb(var(--t) / .05) 65%, rgb(var(--t) / .10));
   backdrop-filter: blur(36px) saturate(80%); -webkit-backdrop-filter: blur(36px) saturate(80%);
-  border: 1px solid rgba(255,255,255,.34); border-radius: 32px;
-  box-shadow: 0 30px 80px rgba(4,6,16,.45), inset 0 1px 0 rgba(255,255,255,.45) }
-.grab { width: 64px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.45); margin: 0 auto 14px }
+  border: 1px solid rgb(var(--t) / .34); border-radius: 32px;
+  box-shadow: 0 30px 80px rgba(4,6,16,.45), inset 0 1px 0 rgb(var(--t) / .45) }
+.grab { width: 64px; height: 6px; border-radius: 3px; background: rgb(var(--t) / .45); margin: 0 auto 14px }
 
 /* top bar */
 .top { height: 84px; display: grid; grid-template-columns: 260px 1fr auto; gap: 24px; align-items: center; padding: 0 32px }
@@ -32,15 +33,15 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .logo { width: 40px; height: 40px; border-radius: 12px; background: var(--blue); display: grid; place-items: center; box-shadow: 0 8px 24px rgba(47,107,255,.45) }
 .logo svg { width: 22px; height: 22px; stroke: #fff }
 .search { justify-self: center; width: min(760px, 100%); display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center;
-  background: rgba(255,255,255,.12); border: 1px solid var(--edge); border-radius: 999px; padding: 6px 6px 6px 18px; backdrop-filter: blur(30px) }
+  background: rgb(var(--t) / .12); border: 1px solid var(--edge); border-radius: 999px; padding: 6px 6px 6px 18px; backdrop-filter: blur(30px) }
 .search .ico { width: 22px; height: 22px; color: var(--sub) }
 .search input { background: none; border: 0; outline: none; font-size: 18px; min-width: 0 }
 .search input::placeholder { color: var(--mute) }
-.search select { background: rgba(255,255,255,.12); border: 1px solid var(--edge); border-radius: 999px; padding: 8px 14px; font-weight: 600 }
+.search select { background: rgb(var(--t) / .12); border: 1px solid var(--edge); border-radius: 999px; padding: 8px 14px; font-weight: 600 }
 .search select option { background: #1b1e29 }
-.pill { border: 1px solid var(--edge); background: rgba(255,255,255,.14); border-radius: 999px; padding: 10px 20px; font-weight: 700; cursor: pointer }
+.pill { border: 1px solid var(--edge); background: rgb(var(--t) / .14); border-radius: 999px; padding: 10px 20px; font-weight: 700; cursor: pointer }
 .pill.on { background: var(--blue); border-color: transparent; box-shadow: 0 8px 22px rgba(47,107,255,.40) }
-.pill.ghost { background: rgba(255,255,255,.08) }
+.pill.ghost { background: rgb(var(--t) / .08) }
 .pill:hover { filter: brightness(1.12) }
 :focus-visible { outline: 2px solid var(--blue-l); outline-offset: 2px }
 
@@ -54,14 +55,14 @@ h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.01em }
 .play svg { width: 22px; height: 22px; fill: #111; stroke: none; margin-left: 3px }
 .play.big { width: 64px; height: 64px }
 .chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 12px }
-.chip { border: 1px solid var(--edge); background: rgba(255,255,255,.12); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-size: 16px; cursor: pointer }
+.chip { border: 1px solid var(--edge); background: rgb(var(--t) / .12); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-size: 16px; cursor: pointer }
 .chip.on { background: var(--blue); border-color: transparent; box-shadow: 0 8px 22px rgba(47,107,255,.40) }
 .colhead, .row { display: grid; grid-template-columns: 44px minmax(0, 2.2fr) minmax(0, 1.4fr) 64px 70px 44px; gap: 14px; align-items: center }
-.colhead { color: var(--mute); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,.16) }
+.colhead { color: var(--mute); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid rgb(var(--t) / .16) }
 .rows { overflow-y: auto; min-height: 0; flex: 1; padding: 6px 2px 4px; scrollbar-width: thin }
 .row { padding: 7px 10px; border-radius: 14px; position: relative; cursor: pointer }
-.row:hover { background: rgba(255,255,255,.08) }
-.row.sel { background: rgba(255,255,255,.12) }
+.row:hover { background: rgb(var(--t) / .08) }
+.row.sel { background: rgb(var(--t) / .12) }
 .row.hit { background: rgba(47,107,255,.28); box-shadow: inset 0 0 0 1px rgba(91,140,255,.75) }
 .row.new { animation: flash 2.4s ease-out }
 @keyframes flash { 0%, 40% { background: rgba(47,107,255,.45) } 100% { background: transparent } }
@@ -74,9 +75,9 @@ h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.01em }
 .row.hit .t1, .row.sel .t1 { display: flex; align-items: center; gap: 8px }
 .row.hit .t1::before, .row.sel .t1::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--blue-l); box-shadow: 0 0 10px var(--blue-l); flex: none }
 .t2 { color: var(--sub); font-size: 15px; display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.bd { font-size: 12px; font-weight: 800; background: rgba(255,255,255,.85); color: #12141c; padding: 1px 6px; border-radius: 4px; flex: none }
+.bd { font-size: 12px; font-weight: 800; background: rgb(var(--t) / .85); color: #12141c; padding: 1px 6px; border-radius: 4px; flex: none }
 .alb, .yr, .ln { color: var(--sub); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums }
-.del { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--edge); background: rgba(255,255,255,.08); display: grid; place-items: center; cursor: pointer; opacity: .55 }
+.del { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--edge); background: rgb(var(--t) / .08); display: grid; place-items: center; cursor: pointer; opacity: .55 }
 .row:hover .del { opacity: 1 }
 .del:hover { background: #d9435a; border-color: transparent; opacity: 1 }
 .del svg { width: 16px; height: 16px }
@@ -91,60 +92,60 @@ h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -.01em }
 h2 { margin: 4px 0 0; font-size: 28px; font-weight: 800 }
 .time { font: 500 14px var(--mono); color: var(--sub); white-space: nowrap; padding-top: 4px }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 14px }
-.badge { font-weight: 700; font-size: 14px; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22) }
+.badge { font-weight: 700; font-size: 14px; padding: 5px 12px; border-radius: 999px; background: rgb(var(--t) / .14); border: 1px solid rgb(var(--t) / .22) }
 .badge.on { background: var(--blue); border-color: transparent }
 .hint { color: var(--sub); margin: 0; font-size: 16px; line-height: 1.5 }
 .step { display: grid; grid-template-columns: 66px 1fr; gap: 12px; align-items: center; margin: 9px 0 }
 .step b { font: 500 13px var(--mono); color: var(--sub) }
 .cells { display: grid; gap: 3px }
-.cells i { height: 22px; border-radius: 4px; background: rgba(255,255,255,.08) }
-.cells i.in { background: rgba(255,255,255,.30) }
+.cells i { height: 22px; border-radius: 4px; background: rgb(var(--t) / .08) }
+.cells i.in { background: rgb(var(--t) / .30) }
 .cells i.mid { background: var(--blue); box-shadow: 0 0 12px rgba(47,107,255,.7) }
 .steptxt { grid-column: 2; color: var(--sub); font-size: 14px; margin-top: -4px }
-.result { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.08); font-size: 16px }
+.result { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: rgb(var(--t) / .08); font-size: 16px }
 .nodes { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap }
-.node { padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); font-weight: 700; font-size: 15px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.node { padding: 10px 14px; border-radius: 12px; background: rgb(var(--t) / .12); border: 1px solid rgb(var(--t) / .22); font-weight: 700; font-size: 15px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .node.new { background: var(--blue); border-color: transparent }
 .node.gone { opacity: .45; text-decoration: line-through }
 .link { color: var(--sub); font: 500 13px var(--mono) }
 .buckets { display: grid; gap: 8px }
 .bucket { display: grid; grid-template-columns: 110px 1fr 28px; gap: 10px; align-items: center; font-size: 15px }
-.bucket .barw { height: 12px; border-radius: 6px; background: rgba(255,255,255,.10); overflow: hidden }
+.bucket .barw { height: 12px; border-radius: 6px; background: rgb(var(--t) / .10); overflow: hidden }
 .bucket .barw i { display: block; height: 100%; border-radius: 6px; background: var(--blue) }
 .kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px }
-.kv div { background: rgba(255,255,255,.08); border-radius: 14px; padding: 12px 14px }
+.kv div { background: rgb(var(--t) / .08); border-radius: 14px; padding: 12px 14px }
 .kv b { display: block; font-size: 28px; font-weight: 800 }
 .kv span { color: var(--sub); font-size: 14px }
 
 .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px }
-.tile { display: grid; justify-items: center; gap: 8px; padding: 14px 6px; border-radius: 20px; border: 1px solid var(--edge); background: rgba(255,255,255,.10); backdrop-filter: blur(30px); font-weight: 700; font-size: 15px; cursor: pointer; text-align: center }
+.tile { display: grid; justify-items: center; gap: 8px; padding: 14px 6px; border-radius: 20px; border: 1px solid var(--edge); background: rgb(var(--t) / .10); backdrop-filter: blur(30px); font-weight: 700; font-size: 15px; cursor: pointer; text-align: center }
 .tile svg { width: 26px; height: 26px }
-.tile:hover { background: rgba(255,255,255,.18) }
+.tile:hover { background: rgb(var(--t) / .18) }
 .tile.on { background: var(--blue); border-color: transparent }
 
 .addcard { padding: 18px 24px 16px }
 .addcard h2 { font-size: 22px; margin: 0 0 12px }
 .addform { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px }
-.addform input { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); border-radius: 12px; padding: 10px 12px; outline: none; min-width: 0 }
+.addform input { background: rgb(var(--t) / .10); border: 1px solid rgb(var(--t) / .22); border-radius: 12px; padding: 10px 12px; outline: none; min-width: 0 }
 .addform input::placeholder { color: var(--mute) }
 .addform button { grid-column: span 3 }
 .err { color: #ff9aa8; min-height: 1.2em; margin: 8px 0 0; font-size: 15px }
 
 /* player bar */
 .player { position: fixed; left: 0; right: 0; bottom: 0; height: 96px; display: grid; grid-template-columns: 340px 1fr 520px; gap: 28px; align-items: center; padding: 0 32px;
-  background: rgba(10,11,16,.55); border-top: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(30px) }
+  background: rgba(10,11,16,.55); border-top: 1px solid rgb(var(--t) / .12); backdrop-filter: blur(30px) }
 .now { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center }
-.now .art { width: 56px; height: 56px; background: rgba(255,255,255,.12) }
+.now .art { width: 56px; height: 56px; background: rgb(var(--t) / .12) }
 .bar { display: grid; grid-template-columns: 50px 1fr 50px; gap: 12px; align-items: center; color: var(--sub); font: 500 14px var(--mono) }
 .bar span:last-child { text-align: right }
-.track { height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); overflow: hidden }
+.track { height: 6px; border-radius: 3px; background: rgb(var(--t) / .18); overflow: hidden }
 .track i { display: block; height: 100%; width: 0; background: #fff; border-radius: 3px; transition: width .25s linear }
 .counters { display: flex; justify-content: flex-end; gap: 10px }
-.counters div { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); border-radius: 14px; padding: 6px 14px; text-align: center }
+.counters div { background: rgb(var(--t) / .10); border: 1px solid rgb(var(--t) / .18); border-radius: 14px; padding: 6px 14px; text-align: center }
 .counters b { display: block; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums }
 .counters span { font-size: 12px; color: var(--sub) }
 .counters.pulse div { animation: pulse 1s ease-out }
-@keyframes pulse { 0% { background: var(--blue) } 100% { background: rgba(255,255,255,.10) } }
+@keyframes pulse { 0% { background: var(--blue) } 100% { background: rgb(var(--t) / .10) } }
 
 @media (max-width: 1100px) {
   body { overflow: auto }
@@ -156,29 +157,29 @@ h2 { margin: 4px 0 0; font-size: 28px; font-weight: 800 }
 }
 
 /* sample picker */
-.samples { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.10); border: 1px solid var(--edge); border-radius: 999px; padding: 5px 6px 5px 16px; backdrop-filter: blur(30px) }
+.samples { display: flex; align-items: center; gap: 6px; background: rgb(var(--t) / .10); border: 1px solid var(--edge); border-radius: 999px; padding: 5px 6px 5px 16px; backdrop-filter: blur(30px) }
 .slabel { color: var(--sub); font-weight: 600; margin-right: 4px }
-.samples button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.10); font-weight: 800; cursor: pointer }
+.samples button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgb(var(--t) / .10); font-weight: 800; cursor: pointer }
 .samples button.on { background: var(--blue); box-shadow: 0 6px 18px rgba(47,107,255,.45) }
 .samples .reset { display: grid; place-items: center } .samples .reset svg { width: 18px; height: 18px }
 
 /* merge sort picture */
 .levels { display: grid; gap: 7px; margin-top: 6px }
 .lvl { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; opacity: 0; animation: lvlin .35s ease-out forwards }
-.lvl .seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14) }
+.lvl .seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgb(var(--t) / .08); border: 1px solid rgb(var(--t) / .14) }
 .lvl.m .seg { background: rgba(47,107,255,.22); border-color: rgba(91,140,255,.45) }
 .lvl.final .seg { background: var(--blue); border-color: transparent }
-.lvl .seg span { font: 500 11.5px var(--mono); padding: 2px 4px; border-radius: 5px; background: rgba(255,255,255,.10); white-space: nowrap }
+.lvl .seg span { font: 500 11.5px var(--mono); padding: 2px 4px; border-radius: 5px; background: rgb(var(--t) / .10); white-space: nowrap }
 .lvtag { text-align: center; font: 500 12px var(--mono); color: var(--sub); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px }
 @keyframes lvlin { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
 
 /* speed race */
 .race { display: grid; gap: 16px; margin-top: 4px }
-.rbox { background: rgba(255,255,255,.07); border-radius: 16px; padding: 14px 16px }
+.rbox { background: rgb(var(--t) / .07); border-radius: 16px; padding: 14px 16px }
 .rbox h3 { margin: 0 0 10px; font-size: 17px }
 .rline { display: grid; grid-template-columns: 190px 1fr 100px; gap: 10px; align-items: center; margin: 6px 0; font-size: 15px }
-.rline .barw { height: 14px; border-radius: 7px; background: rgba(255,255,255,.08); overflow: hidden }
-.rline .barw i { display: block; height: 100%; border-radius: 7px; background: rgba(255,255,255,.45); transform-origin: left; animation: grow .9s ease-out both }
+.rline .barw { height: 14px; border-radius: 7px; background: rgb(var(--t) / .08); overflow: hidden }
+.rline .barw i { display: block; height: 100%; border-radius: 7px; background: rgb(var(--t) / .45); transform-origin: left; animation: grow .9s ease-out both }
 .rline.us .barw i { background: var(--blue) }
 .rline b { font-variant-numeric: tabular-nums; text-align: right }
 .xfast { font-size: 30px; font-weight: 800; color: #9FB8FF; margin-top: 4px }
@@ -192,3 +193,22 @@ h2 { margin: 4px 0 0; font-size: 28px; font-weight: 800 }
   .tiles { grid-template-columns: repeat(2, 1fr) }
   .addform { grid-template-columns: 1fr } .addform button { grid-column: auto }
 }
+/* Light theme (?theme=light): the W2 stage from the video, so screen recordings sit on it without a dark box. */
+html.light { --bg: #f6f3ee; --fg: #14171f; --sub: rgba(20,23,31,.62); --mute: rgba(20,23,31,.42); --t: 20 23 31; --edge: rgba(20,23,31,.10); --blue-l: #2F6BFF; color-scheme: light }
+html.light .bg i { opacity: .16 }
+html.light .bg .b4 { background: #2BB3D6 }
+html.light .sheet { background: linear-gradient(140deg, rgba(255,255,255,.82), rgba(255,255,255,.58) 55%, rgba(255,255,255,.68)); backdrop-filter: blur(36px) saturate(150%);
+  border-color: rgba(255,255,255,.95); box-shadow: inset 1px 1px 0 #fff, 0 1px 2px rgba(20,30,60,.06), 10px 22px 44px rgba(20,30,60,.10), 22px 48px 96px rgba(20,30,60,.06) }
+html.light .grab { background: rgba(20,23,31,.18) }
+html.light .play { background: var(--fg) } html.light .play svg { fill: #fff }
+html.light .bd { background: #14171f; color: #fff }
+html.light .art { box-shadow: 0 6px 14px rgba(20,30,60,.16) }
+html.light .row.hit { background: rgba(47,107,255,.12); box-shadow: inset 0 0 0 1px rgba(47,107,255,.45) }
+html.light .pill.on, html.light .chip.on, html.light .badge.on, html.light .tile.on, html.light .samples button.on, html.light .node.new, html.light .lvl.final .seg { color: #fff }
+html.light .player { background: rgba(255,255,255,.62); border-top-color: rgba(20,23,31,.08) }
+html.light .track i { background: var(--blue) }
+html.light .search select option { background: #fff }
+html.light .xfast { color: var(--blue) }
+html.light .err { color: #c22f45 }
+html.light .cells i:not(.in):not(.mid) { background: rgba(20,23,31,.05) } html.light .cells i.in { background: rgba(20,23,31,.16) }
+html.light .tile:not(.on), html.light .addform input, html.light .counters div { background: rgba(255,255,255,.55) }

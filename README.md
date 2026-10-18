@@ -57,6 +57,7 @@ The panel on the right shows what each algorithm just did: the binary-search ste
 ## Recording tips for the video
 
 - Full screen the browser (F11) at 1920×1080 before recording.
+- **Record in the light theme** so the screen matches the video's light stage: add `theme=light` to the address, e.g. `http://localhost:8000/?theme=light` or `http://localhost:8000/?theme=light&run=sample:B,sort:length`.
 - Press the reload arrow (next to the samples) before each take so everyone starts from the same tracks.
 - To open the page already in the state your take needs, add steps to the address, separated by commas:
   - `http://localhost:8000/?run=sample:B,sort:length`
