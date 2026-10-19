@@ -23,6 +23,41 @@ class Algorithms(unittest.TestCase):
             p.check()
 
 
+class Samples(unittest.TestCase):
+    """The four test samples A–D, one check per operation shown in the video."""
+
+    def load(self, k, field):
+        return Playlist(server.load_csv("sample_data/" + server.SAMPLES[k][0]), field)
+
+    def test_a_real_playlist(self):
+        a = self.load("A", "released")
+        self.assertEqual({k: len(v) for k, v in a.group("genre").items()}["Pop"], 4)
+        self.assertEqual(len(a.group("genre")), 7)
+
+    def test_b_duplicate_keys(self):
+        b = self.load("B", "length")
+        i = b.insert(Track("Zzz Tie", "Daft Punk", None, "Electronic", "2000-11-13", 320))
+        self.assertEqual([t.title for t in b.tracks[i - 1:i + 2]], ["One More Time", "Zzz Tie", "Lose Yourself"])
+        self.assertEqual([t.title for t in b.group("genre")["Pop"]], ["Dynamite", "Blinding Lights", "Shape of You", "Billie Jean"])
+        b.check()
+
+    def test_c_already_ordered(self):
+        rows = server.load_csv("sample_data/" + server.SAMPLES["C"][0])
+        c = Playlist(rows, "released")
+        self.assertEqual(c.tracks, rows)                       # sorting changes nothing
+        c.insert(Track("New", "X", None, "Pop", "2005-01-01", 200))
+        c.check()
+
+    def test_d_broken_data(self):
+        d = self.load("D", "album")
+        self.assertIsNone(d.tracks[0].album)                   # missing album sorts first
+        self.assertEqual(d.count()["per_artist"]["(unknown)"], 1)
+        self.assertEqual(len(d.search("title", "hotel california")), 2)
+        for bad in (-1, 99, "3"):
+            with self.assertRaises(IndexError):
+                d.delete(bad)
+
+
 class Endpoints(unittest.TestCase):
     def setUp(self):
         server.reset()
